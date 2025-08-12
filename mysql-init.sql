@@ -1,0 +1,14 @@
+CREATE DATABASE IF NOT EXISTS formdb;
+
+USE formdb;
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  email VARCHAR(100),
+  phone VARCHAR(20),
+  gender VARCHAR(10),
+  message TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
