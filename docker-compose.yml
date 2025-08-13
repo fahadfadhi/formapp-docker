@@ -1,33 +1,52 @@
 services:
   mysql:
     image: mysql:8.0
+    container_name: mysql_db
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: fahad@123
       MYSQL_DATABASE: formdb
-    ports:
-      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql-init.sql:/docker-entrypoint-initdb.d/mysql-init.sql:ro
+    ports:
+      - "3308:3306"
 
-  php-fpm:
-    image: yourdockerhubusername/formapp-php:latest
-    ports: []
-    volumes: []
+  php_fpm:
+    image: fahadfadhi/formapp-php:latest   # <-- change USERNAME to your Docker Hub username
+    container_name: php_fpm
+    restart: always
+    expose:
+      - "9000"                           # internal port for Nginx to connect
+    volumes:
+      - ./:/var/www/html                  # share code with Nginx
+    depends_on:
+      - mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: fahad@123
+    ports:
+      - "8081:80"
     depends_on:
       - mysql
 
   nginx:
     image: nginx:1.22-alpine
+    container_name: nginx_web
+    restart: always
     ports:
-      - "8080:80"
+      - "8080:80"                        # Web app accessible at http://localhost:8080
     volumes:
+      - ./:/var/www/html:ro
       - ./default.conf:/etc/nginx/conf.d/default.conf
-      - ./index.html:/var/www/html/index.html
-      - ./submit.php:/var/www/html/submit.php
     depends_on:
-      - php-fpm
+      - php_fpm
 
 volumes:
   mysql_data:
-
